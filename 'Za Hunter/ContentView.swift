@@ -2,7 +2,7 @@
 //  ContentView.swift
 //  'Za Hunter
 //
-//  Created by Ali on 01/08/2022.
+//  Created by Ali on 30/7/2022.
 //
 
 import SwiftUI
@@ -23,17 +23,25 @@ struct ContentView: View {
     )
     
     var body: some View {
-        Map(coordinateRegion: $region,
-            interactionModes: .all,
-            showsUserLocation: true,
-            userTrackingMode: $userTrackingMode,
-            annotationItems: places) { place in
-            MapPin(coordinate: place.annotation.coordinate)
+        NavigationView {
+            Map(coordinateRegion: $region,
+                interactionModes: .all,
+                showsUserLocation: true,
+                userTrackingMode: $userTrackingMode,
+                annotationItems: places) { place in
+                MapAnnotation(coordinate: place.annotation.coordinate) {
+                    NavigationLink(destination: LocationDetailsView(selectedMapItem: place.mapItem)) {
+                        Image("Pizza")
+                    }
+                }
+            }
+                .onAppear() {
+                    performSearch(item: "Pizza")
+                }
+                .navigationTitle(" 'Za Hunter")
+                .navigationBarTitleDisplayMode(.inline)
         }
-            .onAppear() {
-            performSearch(item: "Pizza")
     }
-}
     func performSearch(item: String) {
         let searchRequest = MKLocalSearch.Request()
         searchRequest.naturalLanguageQuery = item
@@ -46,21 +54,21 @@ struct ContentView: View {
                     annotation.coordinate = mapItem.placemark.coordinate
                     annotation.title = mapItem.name
                     places.append(Place(annotation: annotation, mapItem: mapItem))
-                    }
                 }
             }
         }
     }
+}
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
-        }
     }
+}
 
 struct Place: Identifiable {
     let id = UUID()
     let annotation: MKPointAnnotation
     let mapItem: MKMapItem
-    }
+}
 
